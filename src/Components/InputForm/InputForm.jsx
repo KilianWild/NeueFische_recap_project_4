@@ -1,22 +1,30 @@
 import "./InputForm.css";
 
-export default function InputForm({}) {
-   const customColor = {
+export default function InputForm({ customColors }) {
+   /*  const customColor = {
       id: "",
       role: "",
       hex: "",
       contrastText: "",
-   };
+   };*/
+   const lastArrayIndex = customColors.length;
+
    return (
       <form
          className="inputForm"
          onSubmit={(event) => {
             event.preventDefault();
 
-            customColor.role = event.target.elements.inputRole.value;
-            customColor.hex = event.target.elements.inputHexColor.value;
-            customColor.contrastText = event.target.elements.inputContrastColor.value;
-            console.log(customColor);
+            customColors.push({
+               id: "c" + (Number(lastArrayIndex) + 1),
+               role: event.target.elements.inputRole.value,
+               hex: event.target.elements.inputHexColor.value,
+               contrastText: event.target.elements.inputContrastColor.value,
+            });
+            customColors.role = event.target.elements.inputRole.value;
+            customColors.hex = event.target.elements.inputHexColor.value;
+            customColors.contrastText = event.target.elements.inputContrastColor.value;
+            console.log(customColors);
          }}
       >
          <label htmlFor="inputRole">Role: </label>
