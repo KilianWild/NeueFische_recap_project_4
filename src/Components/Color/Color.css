@@ -1,11 +1,17 @@
 .color-card {
-  margin: 0px 10px;
-  padding: 5px;
+   margin: 0px 10px;
+   padding: 5px;
+   color: white;
 }
 
 .color-card-headline {
-  display: inline;
-  padding: 2px 6px;
-  background: black;
-  color: white;
+   display: inline;
+   padding: 2px 6px;
+   background: black;
+   color: white;
+   font-weight: bold;
+}
+
+.color-card-hex {
+   font-weight: bold;
 }
