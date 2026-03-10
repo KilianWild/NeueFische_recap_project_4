@@ -23,7 +23,7 @@ export default function InputForm({
                contrastText: event.target.elements.inputContrastColor.value,
             };
             event.preventDefault();
-/
+
             async function postFetch(colorToCheck) {
                const response = await fetch("https://www.aremycolorsaccessible.com/api/are-they", {
                   method: "POST",
@@ -34,9 +34,7 @@ export default function InputForm({
                });
                const colorCheckReult = await response.json();
                console.log("colorCheckReult", colorCheckReult);
-               colorToCheck.
-
-                setCustomColor(newColorArray);
+               //colorToCheck.setCustomColor(newColorArray);
 
                return response;
             }
