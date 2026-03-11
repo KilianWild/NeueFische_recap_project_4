@@ -31,3 +31,10 @@ export const initialColors = [
 ];
 
 export const customColors = [];
+
+export const defaultColor = {
+   id: "cx",
+   role: "default color",
+   hex: "#123456",
+   contrastText: "#FFFFFF"
+};

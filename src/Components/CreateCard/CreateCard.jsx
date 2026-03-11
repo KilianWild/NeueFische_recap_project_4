@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import ColorInput from "../ColorInput/ColorInput";
 import InputForm from "../../Components/InputForm/InputForm";
 
 export default function CreateCard({ colorsObject, colorsArray, setCustomColor, stateColorCheck, setStateColorCheck }) {
@@ -22,9 +21,11 @@ export default function CreateCard({ colorsObject, colorsArray, setCustomColor, 
             setShowColorCopied(false);
          }, 3000);
       }
-
       return () => clearTimeout(timer);
    }, [showColorCopied]);
+
+
+
    return (
       <section className="color-card" style={{ backgroundColor: colorsObject.hex }}>
          <p className="color-card-headline">{colorsObject.hex}</p>
@@ -37,6 +38,8 @@ export default function CreateCard({ colorsObject, colorsArray, setCustomColor, 
             >
                COPY
             </button>
+
+            
          )}
          {showColorCopied && <button>SUCCESSFULLY COPIED</button>}
          <p className="color-card-hex">{colorsObject.role}</p>

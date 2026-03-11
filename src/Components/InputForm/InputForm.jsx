@@ -1,5 +1,6 @@
 import "./InputForm.css";
-import ColorInput from "../ColorInput/ColorInput";
+import { defaultColor } from "../../lib/colors";
+
 
 export default function InputForm({
    customColors,
@@ -11,6 +12,11 @@ export default function InputForm({
    setStateColorCheck,
 }) {
    const lastArrayIndex = customColors.length;
+
+   if (currentColor == undefined || currentColor == null)
+      currentColor = defaultColor;
+
+   console.log("currentColor in Input Form", currentColor)
 
    return (
       <form
@@ -57,13 +63,13 @@ export default function InputForm({
       >
          <label htmlFor="inputRole">Role: </label>
 
-         <input id="inputRole" name="inputRole" className="inputField" type="text" defaultValue="some color" />
+         <input id="inputRole" name="inputRole" className="inputField" type="text" defaultValue={currentColor.role}/>
          <label htmlFor="inputHexColor">Hex: </label>
          <div>
-            <input id="inputHexColor" name="inputHexColor" className="inputField" type="text" defaultValue="#123456" />
+            <input id="inputHexColor" name="inputHexColor" className="inputField" type="text" defaultValue={currentColor.hex} />
             <input
                type="color"
-               defaultValue="#123456"
+               defaultValue={currentColor.hex}
                name="inputHexColorPicker"
                className="inputField__ColorPicker"
                onChange={(event) => {
@@ -76,10 +82,10 @@ export default function InputForm({
 
          <label htmlFor="inputContrastColor">Contrast Color: </label>
          <div>
-            <input id="inputContrastColor" name="inputContrastColor" className="inputField" type="text" defaultValue="#ffffff" />
+            <input id="inputContrastColor" name="inputContrastColor" className="inputField" type="text" defaultValue={currentColor.contrastText} />
             <input
                type="color"
-               defaultValue="#ffffff"
+               defaultValue={currentColor.contrastText}
                name="inputContrastColorPicker"
                className="inputField__ColorPicker"
                onChange={(event) => {
