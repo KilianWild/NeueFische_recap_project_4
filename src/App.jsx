@@ -1,13 +1,10 @@
-import { initialColors, customColors } from "./lib/colors";
-import Color from "./Components/Color/Color";
+import { initialColors } from "./lib/colors";
 import "./App.css";
 import CreateCard from "./Components/CreateCard/CreateCard";
 import InputForm from "./Components/InputForm/InputForm";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import useLocalStorageState from "use-local-storage-state";
-
-console.log("customColors ", customColors);
 
 function App() {
    const fetchCue = [];
@@ -22,28 +19,31 @@ function App() {
       defaultValue: [],
    });
 
+   const [stateContrasCheckInProgress, setStateContrasCheckInProgress] = useState(false);
+
    useEffect(() => {
       setStateCustomColors([]);
       setStateInitialColors(initialColors);
 
       async function checkColorContrast(colorToCheck) {
-         /*const response = await fetch("https://www.aremycolorsaccessible.com/api/are-they", {
-                  method: "POST",
-                  body: JSON.stringify({ colors: [colorToCheck.hex, colorToCheck.contrastText] }),
-                  headers: {
-                     "Content-Type": "application/json",
-                  },
-               });
-*/
-
          function hexColorToDigitOnly(hexCode) {
             return hexCode.slice(1);
          }
 
-         const response = await fetch(
-            `https://webaim.org/resources/contrastchecker/?fcolor=${hexColorToDigitOnly(colorToCheck.hex)}&bcolor=${hexColorToDigitOnly(colorToCheck.contrastText)}&api`,
-         );
-         const colorCheckReult = await response.json();
+         let colorCheckReult = "";
+         try {
+            const response = await fetch(
+               `https://webaim.org/resources/contrastchecker/?fcolor=${hexColorToDigitOnly(colorToCheck.hex)}&bcolor=${hexColorToDigitOnly(colorToCheck.contrastText)}&api`,
+            );
+
+            if (!response.ok) {
+               throw new Error(`Request failed: ${response.status}`);
+            }
+
+            colorCheckReult = await response.json();
+         } catch (error) {
+            console.error("Error sending data:", error);
+         }
 
          setStateInitialColors((prev) =>
             prev.map((color) =>
@@ -51,7 +51,14 @@ function App() {
                   ? {
                        ...color,
                        colorsCheck:
-                          "ratio: " + colorCheckReult.ratio + " - " + "AA: " + colorCheckReult.AA + " - " + "AAA: " + colorCheckReult.AAA,
+                          "ratio: " +
+                          colorCheckReult.ratio +
+                          " - " +
+                          "AA: " +
+                          colorCheckReult.AA +
+                          " - " +
+                          "AAA: " +
+                          colorCheckReult.AAA,
                     }
                   : color,
             ),
@@ -59,9 +66,12 @@ function App() {
       }
 
       async function checkMutlibleColors(colorArray) {
+         setStateContrasCheckInProgress(true);
          for (let i = 0; i < stateInitialColors.length; i++) {
             await checkColorContrast(colorArray[i], colorArray);
          }
+
+         setStateContrasCheckInProgress(false);
       }
 
       checkMutlibleColors(stateInitialColors);
@@ -77,32 +87,32 @@ function App() {
             formType="New Color"
             stateColorCheck={stateColorCheck}
             setStateColorCheck={setStateColorCheck}
+            contrasCheckInProgress={stateContrasCheckInProgress}
+            setContrasCheckInProgress={setStateContrasCheckInProgress}
          />
 
-         {stateCustomColors.map((color, index) => {
+         {stateCustomColors.map((color) => {
             return (
                <CreateCard
                   key={color.id}
                   colorsObject={color}
-                  colorsObjectIndex={index}
                   colorsArray={stateCustomColors}
                   setCustomColor={setStateCustomColors}
-                  stateColorCheck={stateColorCheck}
-                  setStateColorCheck={setStateColorCheck}
+                  contrasCheckInProgress={stateContrasCheckInProgress}
+                  setContrasCheckInProgress={setStateContrasCheckInProgress}
                />
             );
          })}
 
-         {stateInitialColors.map((color, index) => {
+         {stateInitialColors.map((color) => {
             return (
                <CreateCard
                   key={color.id}
                   colorsObject={color}
-                  colorsObjectIndex={index}
                   colorsArray={stateInitialColors}
                   setCustomColor={setStateInitialColors}
-                  stateColorCheck={stateColorCheck}
-                  setStateColorCheck={setStateColorCheck}
+                  contrasCheckInProgress={stateContrasCheckInProgress}
+                  setContrasCheckInProgress={setStateContrasCheckInProgress}
                />
             );
          })}

@@ -3,7 +3,13 @@ import "./CreateCard.css";
 import { useEffect, useState } from "react";
 import InputForm from "../../Components/InputForm/InputForm";
 
-export default function CreateCard({ colorsObject, colorsArray, setCustomColor, stateColorCheck, setStateColorCheck }) {
+export default function CreateCard({
+   colorsObject,
+   colorsArray,
+   setCustomColor,
+   contrasCheckInProgress,
+   setContrasCheckInProgress,
+}) {
    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
    const [showColorEdit, setShowColorEdit] = useState(false);
    const [showColorCopied, setShowColorCopied] = useState(false);
@@ -74,6 +80,8 @@ export default function CreateCard({ colorsObject, colorsArray, setCustomColor, 
                   currentColor={colorsObject}
                   customColors={colorsArray}
                   setCustomColor={setCustomColor}
+                  contrasCheckInProgress={contrasCheckInProgress}
+                  setContrasCheckInProgress={setContrasCheckInProgress}
                />
 
                <button

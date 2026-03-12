@@ -1,7 +1,15 @@
 import "./InputForm.css";
 import { defaultColor } from "../../lib/colors";
 
-export default function InputForm({ customColors, setCustomColor, formType, setShowColorEdit, currentColor }) {
+export default function InputForm({
+   customColors,
+   setCustomColor,
+   formType,
+   setShowColorEdit,
+   currentColor,
+   contrasCheckInProgress,
+   setContrasCheckInProgress,
+}) {
    const lastArrayIndex = customColors.length;
 
    if (currentColor == undefined || currentColor == null) currentColor = defaultColor;
@@ -10,35 +18,27 @@ export default function InputForm({ customColors, setCustomColor, formType, setS
       <form
          className="inputForm"
          onSubmit={(event) => {
-            const newColor = {
-               id: "c" + (Number(lastArrayIndex) + 1),
-               role: event.target.elements.inputRole.value,
-               hex: event.target.elements.inputHexColor.value,
-               contrastText: event.target.elements.inputContrastColor.value,
-            };
-            event.preventDefault();
-
             async function checkColorContrast(colorToCheck, colorArray) {
-               /*
-               const response = await fetch("https://www.aremycolorsaccessible.com/api/are-they", {
-                  method: "POST",
-                  body: JSON.stringify({ colors: [colorToCheck.hex, colorToCheck.contrastText] }),
-                  headers: {
-                     "Content-Type": "application/json",
-                  },
-               });
-               const colorCheckReult = await response.json();
-               */
-
+               setContrasCheckInProgress(true);
                function hexColorToDigitOnly(hexCode) {
                   return hexCode.slice(1);
                }
 
-               const response = await fetch(
-                  `https://webaim.org/resources/contrastchecker/?fcolor=${hexColorToDigitOnly(colorToCheck.hex)}&bcolor=${hexColorToDigitOnly(colorToCheck.contrastText)}&api`,
-               );
-               const colorCheckReult = await response.json();
-               if (formType == "Update Color") console.log("Update: colorCheckReult ", colorCheckReult);
+               let colorCheckReult = "";
+               try {
+                  const response = await fetch(
+                     `https://webaim.org/resources/contrastchecker/?fcolor=${hexColorToDigitOnly(colorToCheck.hex)}&bcolor=${hexColorToDigitOnly(colorToCheck.contrastText)}&api`,
+                  );
+
+                  if (!response.ok) {
+                     throw new Error(`Request failed: ${response.status}`);
+                  }
+
+                  colorCheckReult = await response.json();
+                  if (formType == "Update Color") console.log("Update: colorCheckReult ", colorCheckReult);
+               } catch (error) {
+                  console.error("Error sending data:", error);
+               }
 
                const newColorsArray = colorArray.map((color) => {
                   if (color.id === colorToCheck.id) {
@@ -46,31 +46,54 @@ export default function InputForm({ customColors, setCustomColor, formType, setS
                      return {
                         ...color,
                         colorsCheck:
-                           "ratio: " + colorCheckReult.ratio + " - " + "AA: " + colorCheckReult.AA + " " + "AAA: " + colorCheckReult.AAA,
+                           "ratio: " +
+                           colorCheckReult.ratio +
+                           " - " +
+                           "AA: " +
+                           colorCheckReult.AA +
+                           " " +
+                           "AAA: " +
+                           colorCheckReult.AAA,
                      };
                   }
                   return color;
                });
                setCustomColor(newColorsArray);
+               setContrasCheckInProgress(false);
             }
 
-            let newColorArray;
-            if (formType == "New Color") {
-               newColorArray = [newColor, ...customColors];
-               setCustomColor(newColorArray);
-               checkColorContrast(newColor, newColorArray);
-            } else if (formType == "Update Color") {
-               newColorArray = customColors.map((color) => {
-                  if (color.id === currentColor.id) {
-                     return { ...color, hex: newColor.hex, role: newColor.role, contrastText: newColor.contrastText };
-                  }
-                  return color;
-               });
-               const updatedColor = { ...currentColor, hex: newColor.hex, role: newColor.role, contrastText: newColor.contrastText };
+            if (!contrasCheckInProgress) {
+               const newColor = {
+                  id: "c" + (Number(lastArrayIndex) + 1),
+                  role: event.target.elements.inputRole.value,
+                  hex: event.target.elements.inputHexColor.value,
+                  contrastText: event.target.elements.inputContrastColor.value,
+               };
+               event.preventDefault();
 
-               setCustomColor(newColorArray);
-               checkColorContrast(updatedColor, newColorArray);
-               setShowColorEdit(false);
+               let newColorArray;
+               if (formType == "New Color") {
+                  newColorArray = [newColor, ...customColors];
+                  setCustomColor(newColorArray);
+                  checkColorContrast(newColor, newColorArray);
+               } else if (formType == "Update Color") {
+                  newColorArray = customColors.map((color) => {
+                     if (color.id === currentColor.id) {
+                        return { ...color, hex: newColor.hex, role: newColor.role, contrastText: newColor.contrastText };
+                     }
+                     return color;
+                  });
+                  const updatedColor = {
+                     ...currentColor,
+                     hex: newColor.hex,
+                     role: newColor.role,
+                     contrastText: newColor.contrastText,
+                  };
+
+                  setCustomColor(newColorArray);
+                  checkColorContrast(updatedColor, newColorArray);
+                  setShowColorEdit(false);
+               }
             }
          }}
       >
@@ -130,14 +153,20 @@ export default function InputForm({ customColors, setCustomColor, formType, setS
                }}
             />
          </div>
-         {formType == "New Color" && (
+
+         {formType == "New Color" && !contrasCheckInProgress && (
             <button type="submit" className="input__addColorButton">
                ADD COLOR
             </button>
          )}
-         {formType == "Update Color" && (
+         {formType == "Update Color" && !contrasCheckInProgress && (
             <button type="submit" className="input__addColorButton">
                UPDATE COLOR
+            </button>
+         )}
+         {contrasCheckInProgress && (
+            <button type="button" className="input__addColorButton">
+               WAIT FOR COLORCHECK
             </button>
          )}
       </form>
