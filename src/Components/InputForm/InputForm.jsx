@@ -1,22 +1,10 @@
 import "./InputForm.css";
 import { defaultColor } from "../../lib/colors";
 
-
-export default function InputForm({
-   customColors,
-   setCustomColor,
-   formType,
-   setShowColorEdit,
-   currentColor,
-   stateColorCheck,
-   setStateColorCheck,
-}) {
+export default function InputForm({ customColors, setCustomColor, formType, setShowColorEdit, currentColor }) {
    const lastArrayIndex = customColors.length;
 
-   if (currentColor == undefined || currentColor == null)
-      currentColor = defaultColor;
-
-   console.log("currentColor in Input Form", currentColor)
+   if (currentColor == undefined || currentColor == null) currentColor = defaultColor;
 
    return (
       <form
@@ -30,7 +18,8 @@ export default function InputForm({
             };
             event.preventDefault();
 
-            async function postFetch(colorToCheck) {
+            async function checkColorContrast(colorToCheck, colorArray) {
+               /*
                const response = await fetch("https://www.aremycolorsaccessible.com/api/are-they", {
                   method: "POST",
                   body: JSON.stringify({ colors: [colorToCheck.hex, colorToCheck.contrastText] }),
@@ -39,31 +28,55 @@ export default function InputForm({
                   },
                });
                const colorCheckReult = await response.json();
-               console.log("colorCheckReult", colorCheckReult);
-               //colorToCheck.setCustomColor(newColorArray);
+               */
 
-               return response;
+               function hexColorToDigitOnly(hexCode) {
+                  return hexCode.slice(1);
+               }
+
+               const response = await fetch(
+                  `https://webaim.org/resources/contrastchecker/?fcolor=${hexColorToDigitOnly(colorToCheck.hex)}&bcolor=${hexColorToDigitOnly(colorToCheck.contrastText)}&api`,
+               );
+               const colorCheckReult = await response.json();
+               if (formType == "Update Color") console.log("Update: colorCheckReult ", colorCheckReult);
+
+               const newColorsArray = colorArray.map((color) => {
+                  if (color.id === colorToCheck.id) {
+                     console.log("In map change loop");
+                     return {
+                        ...color,
+                        colorsCheck:
+                           "ratio: " + colorCheckReult.ratio + " - " + "AA: " + colorCheckReult.AA + " " + "AAA: " + colorCheckReult.AAA,
+                     };
+                  }
+                  return color;
+               });
+               setCustomColor(newColorsArray);
             }
 
+            let newColorArray;
             if (formType == "New Color") {
-               setCustomColor([newColor, ...customColors]);
+               newColorArray = [newColor, ...customColors];
+               setCustomColor(newColorArray);
+               checkColorContrast(newColor, newColorArray);
             } else if (formType == "Update Color") {
-               const newColorArray = customColors.map((color) => {
+               newColorArray = customColors.map((color) => {
                   if (color.id === currentColor.id) {
                      return { ...color, hex: newColor.hex, role: newColor.role, contrastText: newColor.contrastText };
                   }
                   return color;
                });
+               const updatedColor = { ...currentColor, hex: newColor.hex, role: newColor.role, contrastText: newColor.contrastText };
+
                setCustomColor(newColorArray);
+               checkColorContrast(updatedColor, newColorArray);
                setShowColorEdit(false);
             }
-
-            console.log(postFetch(newColor));
          }}
       >
          <label htmlFor="inputRole">Role: </label>
 
-         <input id="inputRole" name="inputRole" className="inputField" type="text" defaultValue={currentColor.role}/>
+         <input id="inputRole" name="inputRole" className="inputField" type="text" defaultValue={currentColor.role} />
          <label htmlFor="inputHexColor">Hex: </label>
          <div>
             <input id="inputHexColor" name="inputHexColor" className="inputField" type="text" defaultValue={currentColor.hex} />
@@ -82,7 +95,13 @@ export default function InputForm({
 
          <label htmlFor="inputContrastColor">Contrast Color: </label>
          <div>
-            <input id="inputContrastColor" name="inputContrastColor" className="inputField" type="text" defaultValue={currentColor.contrastText} />
+            <input
+               id="inputContrastColor"
+               name="inputContrastColor"
+               className="inputField"
+               type="text"
+               defaultValue={currentColor.contrastText}
+            />
             <input
                type="color"
                defaultValue={currentColor.contrastText}

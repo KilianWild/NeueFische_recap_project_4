@@ -1,0 +1,13 @@
+.color-card-check{
+    display: table;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding-left: 10px;
+    padding-right: 20px;
+    margin-top: 2px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    width: auto;
+    height: 1.7rem;
+      line-height: 1.7rem;
+    text-align: center;
+}
