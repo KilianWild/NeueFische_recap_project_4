@@ -79,7 +79,18 @@ export default function InputForm({ customColors, setCustomColor, formType, setS
          <input id="inputRole" name="inputRole" className="inputField" type="text" defaultValue={currentColor.role} />
          <label htmlFor="inputHexColor">Hex: </label>
          <div>
-            <input id="inputHexColor" name="inputHexColor" className="inputField" type="text" defaultValue={currentColor.hex} />
+            <input
+               id="inputHexColor"
+               name="inputHexColor"
+               className="inputField"
+               type="text"
+               defaultValue={currentColor.hex}
+               onChange={(event) => {
+                  const parent = event.currentTarget.parentElement;
+                  const hexInput = parent.querySelector(".inputField__ColorPicker");
+                  hexInput.value = event.target.value;
+               }}
+            />
             <input
                type="color"
                defaultValue={currentColor.hex}
@@ -101,6 +112,11 @@ export default function InputForm({ customColors, setCustomColor, formType, setS
                className="inputField"
                type="text"
                defaultValue={currentColor.contrastText}
+               onChange={(event) => {
+                  const parent = event.currentTarget.parentElement;
+                  const hexInput = parent.querySelector(".inputField__ColorPicker");
+                  hexInput.value = event.target.value;
+               }}
             />
             <input
                type="color"
